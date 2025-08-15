@@ -19,7 +19,13 @@ export const TokenClaim: React.FC<TokenClaimProps> = ({
   onRefresh,
 }) => {
   const canClaim = parseFloat(claimableAmount) > 0;
-  const formattedAmount = parseFloat(claimableAmount).toFixed(6);
+  // Format with commas, exactly 1 decimal, no scientific notation
+  function formatAmount(amount: string) {
+    const num = Number(amount);
+    if (!isFinite(num)) return amount;
+    return num.toLocaleString(undefined, { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+  }
+  const formattedAmount = formatAmount(claimableAmount);
 
   return (
     <div className="w-full max-w-md mx-auto">
