@@ -19,11 +19,11 @@ export const TokenClaim: React.FC<TokenClaimProps> = ({
   onRefresh,
 }) => {
   const canClaim = parseFloat(claimableAmount) > 0;
-  // Format with commas, max 6 decimals, no scientific notation
+  // Format as integer with commas, no decimals, no scientific notation
   function formatAmount(amount: string) {
     const num = Number(amount);
     if (!isFinite(num)) return amount;
-    return num.toLocaleString(undefined, { maximumFractionDigits: 6 });
+    return Math.floor(num).toLocaleString();
   }
   const formattedAmount = formatAmount(claimableAmount);
 
