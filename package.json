@@ -4,13 +4,12 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
-    "build": "react-scripts build",
-    "lint": "eslint .",
-    "preview": "vite preview",
-    "start": "react-scripts start",
-    "test": "react-scripts test",
-    "eject": "react-scripts eject"
+  "dev": "vite",
+  "build": "vite build",
+  "lint": "eslint .",
+  "preview": "vite preview",
+  "start": "vite",
+  "test": "echo 'No test script defined.'"
   },
   "dependencies": {
     "ethers": "^6.15.0",
