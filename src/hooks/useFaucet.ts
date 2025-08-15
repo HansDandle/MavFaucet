@@ -31,12 +31,12 @@ export const useFaucet = (provider: any, address: string | null) => {
       setError(null);
       
       const contract = new Contract(MAV_FAUCET_CONTRACT_ADDRESS, mavFaucetAbi, provider);
-      
       // Use checksum address to avoid potential issues
       const checksumAddress = getAddress(address);
       const claimableWei = await contract.claimable(checksumAddress);
       const claimableFormatted = formatUnits(claimableWei, MAV_TOKEN_DECIMALS);
-      
+      console.log('claimableWei:', claimableWei.toString());
+      console.log('claimableFormatted:', claimableFormatted);
       setFaucetState(prev => ({ 
         ...prev, 
         claimableAmount: claimableFormatted 
