@@ -13,6 +13,10 @@ declare global {
 }
 
 function App() {
+
+  // Vite environment variable usage example
+  const FAUCET_ADDRESS = import.meta.env.VITE_REACT_APP_FAUCET_ADDRESS;
+
   const {
     address,
     isConnected,
