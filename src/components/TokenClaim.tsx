@@ -19,11 +19,14 @@ export const TokenClaim: React.FC<TokenClaimProps> = ({
   onRefresh,
 }) => {
   const canClaim = parseFloat(claimableAmount) > 0;
-  // Format as integer with commas, no decimals, no scientific notation
+  // Display raw value as integer with commas, assuming contract returns tokens, not wei
   function formatAmount(amount: string) {
+    // If the value is huge, convert from wei to tokens by dividing by 1e18 and rounding down
     const num = Number(amount);
     if (!isFinite(num)) return amount;
-    return Math.floor(num).toLocaleString();
+    // If the number is greater than 1e9, assume it's wei and convert
+    const displayNum = num > 1e9 ? Math.floor(num / 1e18) : Math.floor(num);
+    return displayNum.toLocaleString();
   }
   const formattedAmount = formatAmount(claimableAmount);
 
