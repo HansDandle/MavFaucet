@@ -4,10 +4,8 @@ import { Droplets } from 'lucide-react';
 export const Header: React.FC<{ onAbout?: () => void }> = ({ onAbout }) => {
   return (
     <header className="text-center mb-12">
-      <div className="flex items-center justify-center gap-3 mb-6">
-        <div className="w-16 h-16 bg-gradient-to-r from-emerald-600 to-blue-700 rounded-full flex items-center justify-center shadow-lg">
-          <Droplets size={32} className="text-white" />
-        </div>
+      <div className="flex flex-col items-center justify-center gap-3 mb-6">
+  <img src="https://i.imgur.com/E50synK.jpeg" alt="Lion Cart" className="rounded-full shadow-lg w-24 h-24 object-cover mb-2" />
         <h1 className="text-4xl font-bold bg-gradient-to-r from-emerald-400 to-blue-800 bg-clip-text text-transparent">
           MAV Faucet
         </h1>
