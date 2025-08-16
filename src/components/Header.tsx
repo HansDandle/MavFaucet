@@ -11,7 +11,7 @@ export const Header: React.FC<{ onAbout?: () => void }> = ({ onAbout }) => {
         </h1>
       </div>
       <p className="text-xl text-gray-300 max-w-2xl mx-auto leading-relaxed">
-        Claim your free MAV tokens on Base.<br></br> DiamondPaw Mavs get the lion's share.
+       EthMavericks hodlers can claim free MAV ERC-20 tokens on Base.<br></br> DiamondPaw Mavs get the lion's share.
       </p>
       <div className="mt-4 inline-flex items-center gap-2 bg-emerald-900 text-emerald-300 px-4 py-2 rounded-full text-sm font-medium">
         <div className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse"></div>
