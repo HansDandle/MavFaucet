@@ -147,7 +147,7 @@ const DiceGame: React.FC = () => {
     }}>
       <h2 style={{ color: "#4ade80", fontSize: 28, fontWeight: 700, letterSpacing: 1, marginBottom: 16 }}>Dice Game</h2>
       {account ? (
-        <>
+        <div>
           <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 12 }}>
             <span style={{ fontWeight: 500 }}>Connected:</span>
             <span style={{ fontFamily: "monospace" }}>{account}</span>
@@ -190,7 +190,7 @@ const DiceGame: React.FC = () => {
 
           <button style={{ background: "linear-gradient(90deg,#4ade80,#60a5fa)", color: "#fff", border: "none", borderRadius: 8, padding: "10px 24px", fontWeight: 600, fontSize: 18, cursor: "pointer", boxShadow: "0 2px 8px rgba(76,222,128,0.15)" }} onClick={placeBet}>Approve & Bet</button>
           <p style={{ color: status.includes("won") ? "#4ade80" : status.includes("lost") ? "#f87171" : "#fff", fontWeight: 500, fontSize: 18, marginTop: 16 }}>{status}</p>
-        </>
+        </div>
       ) : (
         <button style={{ background: "linear-gradient(90deg,#4ade80,#60a5fa)", color: "#fff", border: "none", borderRadius: 8, padding: "10px 24px", fontWeight: 600, fontSize: 18, cursor: "pointer", boxShadow: "0 2px 8px rgba(76,222,128,0.15)" }} onClick={connectWallet}>Connect Wallet</button>
       )}
