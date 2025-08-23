@@ -15,7 +15,7 @@
     if (!account || !provider) return;
     try {
       const token = new ethers.Contract(
-        "0x2aBE027F498F7A6b276D5230E604c2f26De573e5",
+        CONFIG.TOKEN_ADDRESS,
         ["function balanceOf(address) view returns (uint256)", "function decimals() view returns (uint8)"],
         provider
       );
@@ -24,6 +24,23 @@
       setBalance(ethers.formatUnits(rawBalance, decimals));
     } catch (err) {
       setBalance("0");
+    }
+  };
+
+  // Fetch Dice Game contract bankroll
+  const fetchBankroll = async (provider: any) => {
+    if (!provider) return;
+    try {
+      const token = new ethers.Contract(
+        CONFIG.TOKEN_ADDRESS,
+        ["function balanceOf(address) view returns (uint256)", "function decimals() view returns (uint8)"],
+        provider
+      );
+  const rawBalance = await token.balanceOf("0x3eAB4Aa46CAA40798B28AcA9b79dE8016666d89F");
+      const decimals = await token.decimals();
+      setBankroll(ethers.formatUnits(rawBalance, decimals));
+    } catch (err) {
+      setBankroll("0");
     }
   };
             const [signer, setSigner] = useState<ethers.JsonRpcSigner | null>(null);
@@ -50,8 +67,9 @@
             setAccount(addr);
             const dice = new ethers.Contract(CONFIG.DICE_ADDRESS, DiceGameABI, s);
             setDiceContract(dice);
-            // Fetch MAV token balance after wallet connection
+            // Fetch MAV token balance and bankroll after wallet connection
             fetchBalance(addr, s);
+            fetchBankroll(s);
             };
 
             const placeBet = () => {
@@ -96,8 +114,32 @@
                     if (typeof diceContract.placeBet === "function") {
                       const betTx = await diceContract.placeBet(choice, betAmount);
                       setStatus("Waiting for bet confirmation...");
-                      await betTx.wait();
-                      setStatus("Bet placed!");
+                      const receipt = await betTx.wait();
+                      // Parse BetPlaced event from receipt
+                      let found = false;
+                      if (receipt && receipt.logs) {
+                        for (const log of receipt.logs) {
+                          try {
+                            const parsed = diceContract.interface.parseLog(log);
+                            if (parsed && parsed.name === "BetPlaced") {
+                              found = true;
+                              const { outcome, win, payout, amount: betAmountEvent } = parsed.args;
+                              let msg = `You picked ${choice}, dice rolled ${outcome}. `;
+                              if (win) {
+                                msg += `You won ${ethers.formatUnits(payout, 18)} MAV!`;
+                              } else {
+                                msg += `You lost ${ethers.formatUnits(betAmountEvent, 18)} MAV.`;
+                              }
+                              setStatus(msg);
+                              break;
+                            }
+                          } catch {}
+                        }
+                      }
+                      if (!found) setStatus("Bet placed! (event not found)");
+                      // Refresh balance and bankroll
+                      fetchBalance(account, signer);
+                      fetchBankroll(signer);
                     } else {
                       setStatus("Bet failed: DiceGame contract is not connected properly.");
                     }
