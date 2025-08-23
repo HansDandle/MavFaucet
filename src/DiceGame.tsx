@@ -93,8 +93,8 @@
                   setStatus("Placing bet...");
                   try {
                     // Ensure diceContract is a contract instance
-                    if (typeof diceContract.bet === "function") {
-                      const betTx = await diceContract.bet(choice, betAmount);
+                    if (typeof diceContract.placeBet === "function") {
+                      const betTx = await diceContract.placeBet(choice, betAmount);
                       setStatus("Waiting for bet confirmation...");
                       await betTx.wait();
                       setStatus("Bet placed!");
