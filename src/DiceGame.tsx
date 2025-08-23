@@ -55,7 +55,39 @@
             };
 
             const placeBet = () => {
-              setStatus("Bet placed (stub)");
+              if (!diceContract || !signer || !account) {
+                setStatus("Wallet not connected");
+                return;
+              }
+              setStatus("");
+              try {
+                // Approve MAV token for DiceGame contract
+                const token = new ethers.Contract(
+                  CONFIG.TOKEN_ADDRESS,
+                  ["function approve(address spender, uint256 amount) returns (bool)"],
+                  signer
+                );
+                const decimals = 18;
+                const betAmount = ethers.parseUnits(amount, decimals);
+                setStatus("Requesting token approval...");
+                token.approve(CONFIG.DICE_ADDRESS, betAmount)
+                  .then(async (tx: any) => {
+                    setStatus("Waiting for approval confirmation...");
+                    await tx.wait();
+                    setStatus("Placing bet...");
+                    // Call DiceGame contract to place bet
+                    // Assumes DiceGame contract has a 'bet(uint8 choice, uint256 amount)' function
+                    const betTx = await diceContract.bet(choice, betAmount);
+                    setStatus("Waiting for bet confirmation...");
+                    await betTx.wait();
+                    setStatus("Bet placed!");
+                  })
+                  .catch((err: any) => {
+                    setStatus("Approval failed: " + (err?.message || err));
+                  });
+              } catch (err: any) {
+                setStatus("Error: " + (err?.message || err));
+              }
             };
 
             return (
