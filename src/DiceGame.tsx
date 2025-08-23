@@ -10,6 +10,22 @@
           }
 
           const DiceGame: React.FC = () => {
+  // Fetch MAV token balance for connected account
+  const fetchBalance = async (account: string, provider: any) => {
+    if (!account || !provider) return;
+    try {
+      const token = new ethers.Contract(
+        "0x2aBE027F498F7A6b276D5230E604c2f26De573e5",
+        ["function balanceOf(address) view returns (uint256)", "function decimals() view returns (uint8)"],
+        provider
+      );
+      const rawBalance = await token.balanceOf(account);
+      const decimals = await token.decimals();
+      setBalance(ethers.formatUnits(rawBalance, decimals));
+    } catch (err) {
+      setBalance("0");
+    }
+  };
             const [signer, setSigner] = useState<ethers.JsonRpcSigner | null>(null);
             const [account, setAccount] = useState<string>("");
             const [diceContract, setDiceContract] = useState<ethers.Contract | null>(null);
@@ -30,15 +46,12 @@
               if (Number(network.chainId) !== Number(CONFIG.EXPECTED_CHAIN_ID)) {
                 alert("Wrong network! Switch to Base Mainnet.");
               }
-              setSigner(s);
-              setAccount(addr);
-              const dice = new ethers.Contract(CONFIG.DICE_ADDRESS, DiceGameABI, s);
-              const token = new ethers.Contract(CONFIG.TOKEN_ADDRESS, [
-                "function balanceOf(address) view returns (uint256)",
-                "function approve(address spender, uint256 amount) returns (bool)"
-              ], s);
-              setDiceContract(dice);
-              setTokenContract(token);
+            setSigner(s);
+            setAccount(addr);
+            const dice = new ethers.Contract(CONFIG.DICE_ADDRESS, DiceGameABI, s);
+            setDiceContract(dice);
+            // Fetch MAV token balance after wallet connection
+            fetchBalance(addr, s);
             };
 
             const placeBet = () => {
@@ -78,7 +91,13 @@
                         min={1}
                         max={6}
                         value={choice}
-                        onChange={(e) => setChoice(Number(e.target.value))}
+                        inputMode="numeric"
+                        pattern="[1-6]"
+                        onChange={(e) => {
+                          // Remove leading zeros
+                          const val = e.target.value.replace(/^0+/, "");
+                          setChoice(Number(val));
+                        }}
                         style={{ background: "#333", color: "#fff", border: "1px solid #666", borderRadius: 6, padding: "4px 8px", marginLeft: 8, fontSize: 16, width: 80 }}
                       />
                     </label>
