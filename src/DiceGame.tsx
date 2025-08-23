@@ -92,10 +92,15 @@
                   }
                   setStatus("Placing bet...");
                   try {
-                    const betTx = await diceContract.bet(choice, betAmount);
-                    setStatus("Waiting for bet confirmation...");
-                    await betTx.wait();
-                    setStatus("Bet placed!");
+                    // Ensure diceContract is a contract instance
+                    if (typeof diceContract.bet === "function") {
+                      const betTx = await diceContract.bet(choice, betAmount);
+                      setStatus("Waiting for bet confirmation...");
+                      await betTx.wait();
+                      setStatus("Bet placed!");
+                    } else {
+                      setStatus("Bet failed: DiceGame contract is not connected properly.");
+                    }
                   } catch (err: any) {
                     if (err?.code === 4001 || err?.message?.toLowerCase().includes("user denied")) {
                       setStatus("Transaction cancelled: You rejected the MetaMask request.");
