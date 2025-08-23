@@ -18,3 +18,8 @@ export const BASE_L2_NETWORK = {
   rpcUrls: [BASE_L2_RPC_URL],
   blockExplorerUrls: ['https://basescan.org'],
 };
+export const CONFIG = {
+  TOKEN_ADDRESS: "0x2aBE027F498F7A6b276D5230E604c2f26De573e5",
+  DICE_ADDRESS: "0x3eAB4Aa46CAA40798B28AcA9b79dE8016666d89F", // Replace with actual deployed contract address
+  EXPECTED_CHAIN_ID: "8453" // Base Mainnet
+};
