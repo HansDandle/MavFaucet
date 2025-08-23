@@ -60,34 +60,53 @@
                 return;
               }
               setStatus("");
-              try {
-                // Approve MAV token for DiceGame contract
-                const token = new ethers.Contract(
-                  CONFIG.TOKEN_ADDRESS,
-                  ["function approve(address spender, uint256 amount) returns (bool)"],
-                  signer
-                );
-                const decimals = 18;
-                const betAmount = ethers.parseUnits(amount, decimals);
-                setStatus("Requesting token approval...");
-                token.approve(CONFIG.DICE_ADDRESS, betAmount)
-                  .then(async (tx: any) => {
-                    setStatus("Waiting for approval confirmation...");
-                    await tx.wait();
-                    setStatus("Placing bet...");
-                    // Call DiceGame contract to place bet
-                    // Assumes DiceGame contract has a 'bet(uint8 choice, uint256 amount)' function
+              (async () => {
+                try {
+                  const token = new ethers.Contract(
+                    CONFIG.TOKEN_ADDRESS,
+                    [
+                      "function approve(address spender, uint256 amount) returns (bool)",
+                      "function allowance(address owner, address spender) view returns (uint256)"
+                    ],
+                    signer
+                  );
+                  const decimals = 18;
+                  const betAmount = ethers.parseUnits(amount, decimals);
+                  // Check allowance first
+                  const allowance = await token.allowance(account, CONFIG.DICE_ADDRESS);
+                  if (allowance < betAmount) {
+                    setStatus("Requesting token approval...");
+                    try {
+                      const tx = await token.approve(CONFIG.DICE_ADDRESS, betAmount);
+                      setStatus("Waiting for approval confirmation...");
+                      await tx.wait();
+                    } catch (err: any) {
+                      // Human readable error for user rejection
+                      if (err?.code === 4001 || err?.message?.toLowerCase().includes("user denied")) {
+                        setStatus("Transaction cancelled: You rejected the MetaMask request.");
+                      } else {
+                        setStatus("Approval failed: " + (err?.message || err));
+                      }
+                      return;
+                    }
+                  }
+                  setStatus("Placing bet...");
+                  try {
                     const betTx = await diceContract.bet(choice, betAmount);
                     setStatus("Waiting for bet confirmation...");
                     await betTx.wait();
                     setStatus("Bet placed!");
-                  })
-                  .catch((err: any) => {
-                    setStatus("Approval failed: " + (err?.message || err));
-                  });
-              } catch (err: any) {
-                setStatus("Error: " + (err?.message || err));
-              }
+                  } catch (err: any) {
+                    if (err?.code === 4001 || err?.message?.toLowerCase().includes("user denied")) {
+                      setStatus("Transaction cancelled: You rejected the MetaMask request.");
+                    } else {
+                      setStatus("Bet failed: " + (err?.message || err));
+                    }
+                  }
+                } catch (err: any) {
+                  setStatus("Error: " + (err?.message || err));
+                }
+              })();
             };
 
             return (
