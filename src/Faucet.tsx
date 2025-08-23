@@ -7,6 +7,26 @@ import { useWallet } from "./hooks/useWallet";
 import { useFaucet } from "./hooks/useFaucet";
 
 export default function Faucet() {
+  // Add token to MetaMask
+  const importToken = async () => {
+    if (!window.ethereum) return alert("MetaMask not found");
+    try {
+      await window.ethereum.request({
+        method: "wallet_watchAsset",
+        params: {
+          type: "ERC20",
+          options: {
+            address: import.meta.env.VITE_REACT_APP_MAVTOKEN_ADDRESS || "YOUR_MAV_TOKEN_ADDRESS",
+            symbol: "MAV",
+            decimals: 18,
+            image: "https://i.imgur.com/E50synK.jpeg"
+          }
+        }
+      });
+    } catch (err) {
+      alert("Could not add token");
+    }
+  };
   const {
     address,
     isConnected,
@@ -30,6 +50,9 @@ export default function Faucet() {
   return (
     <div>
       <Header />
+      <button style={{ background: "#333", color: "#fff", border: "none", borderRadius: 6, padding: "6px 12px", marginBottom: 12, cursor: "pointer" }} onClick={importToken}>
+        Import MAV Token to MetaMask
+      </button>
       <WalletConnection
         address={address}
         isConnected={isConnected}

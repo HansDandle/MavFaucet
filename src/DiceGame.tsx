@@ -10,6 +10,26 @@ declare global {
 }
 
 const DiceGame: React.FC = () => {
+  // Add token to MetaMask
+  const importToken = async () => {
+    if (!window.ethereum) return alert("MetaMask not found");
+    try {
+      await window.ethereum.request({
+        method: "wallet_watchAsset",
+        params: {
+          type: "ERC20",
+          options: {
+            address: CONFIG.TOKEN_ADDRESS,
+            symbol: "MAV",
+            decimals: MAV_TOKEN_DECIMALS,
+            image: "https://i.imgur.com/E50synK.jpeg" // Optional: token logo
+          }
+        }
+      });
+    } catch (err) {
+      alert("Could not add token: " + (err.message || err));
+    }
+  };
   const [signer, setSigner] = useState<ethers.JsonRpcSigner | null>(null);
   const [account, setAccount] = useState<string>("");
   const [diceContract, setDiceContract] = useState<ethers.Contract | null>(null);
@@ -115,15 +135,33 @@ const DiceGame: React.FC = () => {
   }, [diceContract, account]);
 
   return (
-    <div style={{ border: "1px solid #ccc", padding: 20, borderRadius: 10 }}>
-      <h2>Dice Game</h2>
+    <div style={{
+      border: "1px solid #444",
+      padding: 32,
+      borderRadius: 16,
+      background: "linear-gradient(135deg, #232526 0%, #414345 100%)",
+      color: "#eee",
+      boxShadow: "0 4px 24px rgba(0,0,0,0.3)",
+      maxWidth: 480,
+      margin: "40px auto"
+    }}>
+      <h2 style={{ color: "#4ade80", fontSize: 28, fontWeight: 700, letterSpacing: 1, marginBottom: 16 }}>Dice Game</h2>
       {account ? (
         <>
-          <p>Connected: {account}</p>
-          <p>Your Balance: {balance} MAV</p>
-          <p>Dice Game Bankroll: {bankroll} MAV</p>
+          <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 12 }}>
+            <span style={{ fontWeight: 500 }}>Connected:</span>
+            <span style={{ fontFamily: "monospace" }}>{account}</span>
+          </div>
+          <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 8 }}>
+            <span>Your Balance:</span>
+            <span style={{ color: "#4ade80" }}>{balance} MAV</span>
+          </div>
+          <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 20 }}>
+            <span>Dice Game Bankroll:</span>
+            <span style={{ color: "#60a5fa" }}>{bankroll} MAV</span>
+          </div>
 
-          <label>
+          <label style={{ color: "#ccc", fontWeight: 500 }}>
             Pick a number (1–6):
             <input
               type="number"
@@ -131,28 +169,67 @@ const DiceGame: React.FC = () => {
               max={6}
               value={choice}
               onChange={(e) => setChoice(Number(e.target.value))}
+              style={{ background: "#333", color: "#fff", border: "1px solid #666", borderRadius: 6, padding: "4px 8px", marginLeft: 8, fontSize: 16, width: 80 }}
             />
           </label>
 
           <br /><br />
 
-          <label>
+          <label style={{ color: "#ccc", fontWeight: 500 }}>
             Bet amount:
             <input
               type="number"
               min={1}
               value={amount}
               onChange={(e) => setAmount(e.target.value)}
+              style={{ background: "#333", color: "#fff", border: "1px solid #666", borderRadius: 6, padding: "4px 8px", marginLeft: 8, fontSize: 16, width: 120 }}
             />
           </label>
 
           <br /><br />
 
-          <button onClick={placeBet}>Approve & Bet</button>
-          <p>{status}</p>
+          <button style={{ background: "linear-gradient(90deg,#4ade80,#60a5fa)", color: "#fff", border: "none", borderRadius: 8, padding: "10px 24px", fontWeight: 600, fontSize: 18, cursor: "pointer", boxShadow: "0 2px 8px rgba(76,222,128,0.15)" }} onClick={placeBet}>Approve & Bet</button>
+          <p style={{ color: status.includes("won") ? "#4ade80" : status.includes("lost") ? "#f87171" : "#fff", fontWeight: 500, fontSize: 18, marginTop: 16 }}>{status}</p>
         </>
       ) : (
-        <button onClick={connectWallet}>Connect Wallet</button>
+        <button style={{ background: "linear-gradient(90deg,#4ade80,#60a5fa)", color: "#fff", border: "none", borderRadius: 8, padding: "10px 24px", fontWeight: 600, fontSize: 18, cursor: "pointer", boxShadow: "0 2px 8px rgba(76,222,128,0.15)" }} onClick={connectWallet}>Connect Wallet</button>
+      )}
+          <p>Connected: {account}</p>
+          <p>Your Balance: {balance} MAV</p>
+          <p>Dice Game Bankroll: {bankroll} MAV</p>
+
+          <label style={{ color: "#ccc" }}>
+            Pick a number (1–6):
+            <input
+              type="number"
+              min={1}
+              max={6}
+              value={choice}
+              onChange={(e) => setChoice(Number(e.target.value))}
+              style={{ background: "#333", color: "#fff", border: "1px solid #666", borderRadius: 6, padding: "4px 8px", marginLeft: 8 }}
+            />
+          </label>
+
+          <br /><br />
+
+          <label style={{ color: "#ccc" }}>
+            Bet amount:
+            <input
+              type="number"
+              min={1}
+              value={amount}
+              onChange={(e) => setAmount(e.target.value)}
+              style={{ background: "#333", color: "#fff", border: "1px solid #666", borderRadius: 6, padding: "4px 8px", marginLeft: 8 }}
+            />
+          </label>
+
+          <br /><br />
+
+          <button style={{ background: "#444", color: "#fff", border: "none", borderRadius: 6, padding: "8px 16px", cursor: "pointer" }} onClick={placeBet}>Approve & Bet</button>
+          <p style={{ color: status.includes("won") ? "#4ade80" : status.includes("lost") ? "#f87171" : "#fff" }}>{status}</p>
+        </>
+      ) : (
+        <button style={{ background: "#444", color: "#fff", border: "none", borderRadius: 6, padding: "8px 16px", cursor: "pointer" }} onClick={connectWallet}>Connect Wallet</button>
       )}
     </div>
   );
